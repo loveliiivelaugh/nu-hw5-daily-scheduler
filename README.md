@@ -17,6 +17,6 @@ A small sample app built with JavaScript with the purpose of organized your work
 
 Deployed with [GitHub Pages]()
 
-[Live Site]()
+[Live Site](https://loveliiivelaugh.github.io/nu-hw5-daily-scheduler/)
 
 ## Credits
