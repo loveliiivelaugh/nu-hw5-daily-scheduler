@@ -8,14 +8,13 @@ A small sample app built with JavaScript with the purpose of organized your work
 
 ![Screenshot](/assets/images/screenshot.png)
 
-
 ## Demo
 
 ![Gif](/assets/images/workday-scheduler.gif)
 
 ## Deployment
 
-Deployed with [GitHub Pages]()
+Deployed with [GitHub Pages](https://pages.github.com/)
 
 [Live Site](https://loveliiivelaugh.github.io/nu-hw5-daily-scheduler/)
 
