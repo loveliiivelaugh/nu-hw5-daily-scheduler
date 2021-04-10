@@ -1,19 +1,21 @@
+//assigning global variables to DOM elements
 const currentDay = document.querySelector("#currentDay");
 
+//custom handleLocalStorage switch functionm, takes in type of action, which storage, and wether or not youre setting data.
 const handleLocalStorage = (action, storageName, data) => {
   let storage = [];
   switch (action) {
     case "initialize":
-      storage = localStorage.getItem(storageName) ? JSON.parse(localStorage.getItem(storageName)) : []
+      storage = localStorage.getItem(storageName) ? JSON.parse(localStorage.getItem(storageName)) : [];
       return storage;
     case "set":
       localStorage.setItem(storageName, JSON.stringify(data));
       break;
     case "get":
-      storage = JSON.parse(localStorage.getItem(storageName))
+      storage = JSON.parse(localStorage.getItem(storageName));
       return storage;
     case "clear":
-      localStorage.clear(storageName)
+      localStorage.clear(storageName);
       break;
     default:
       break;
@@ -22,19 +24,21 @@ const handleLocalStorage = (action, storageName, data) => {
 
 //initialize local storage
 let scheduleStorage = handleLocalStorage("initialize", "schedule");
-const refreshScheduleStorage = () => {
-  scheduleStorage = handleLocalStorage("get", "schedule");
-};
+//refresh our local scheduleStorage to be updated with the most current data.
+const refreshScheduleStorage = () => scheduleStorage = handleLocalStorage("get", "schedule");
 
 console.info(scheduleStorage);
 // handleLocalStorage("clear", "schedule");
-const setCurrentDay = () => { currentDay.innerHTML = moment().format("dddd; MMMM-D-YY"); };
+//set the current day using Moment.js wrapped in a function so it can be updated on call.
+const setCurrentDay = () => currentDay.innerHTML = moment().format("dddd; MMMM-D-YY");
 
+//using an array with 2 empty data objects in order to dynamically create space in our table
 const headerCells = [
   {name:""},
   {name:""},
 ];
 
+//array of time objects to be used when dynamically creating our time block cells.
 const timeSlots = [
   { time: "8AM", hour: 8 },
   { time: "9AM", hour: 9 },
@@ -49,16 +53,20 @@ const timeSlots = [
   { time: "6PM", hour: 18 },
 ];
 
-const saveContents = (event) => {
+//function that saves the contents typed into the input cell to local storage using a matching ID
+const saveContents = event => {
   for (i = 0; i < scheduleStorage.length; i++) {
     if (event.target.dataset.time === scheduleStorage[i].cellId.split("-")[0]) {
+      //once we matched the id with the item in the storage array then we want to splice the item from the array with the index.
       scheduleStorage.splice(event.target.dataset.index, 1);
     }
   }
   
-  const cellContents = document.getElementById(event.target.dataset.time+"-cell") ?
-  document.getElementById(event.target.dataset.time+"-cell").value : '';
+  //cellContents is equal to the input targeted by the dynamic id, if there is one.
+  const cellContents = document.getElementById(event.target.dataset.time+"-cell") &&
+  document.getElementById(event.target.dataset.time+"-cell").value;
 
+  // if there is a dataset time attribute
   if (event.target.dataset.time) {
     scheduleStorage.push({
       cellId: event.target.dataset.time+"-cell",
@@ -71,7 +79,7 @@ const saveContents = (event) => {
   }
 };
 
-const getCellContentsById = (id) => {
+const getCellContentsById = id => {
   for (i = 0; i < scheduleStorage.length; i++) {
     if (id === scheduleStorage[i].cellId) {
       return scheduleStorage[i].cellContents ? scheduleStorage[i].cellContents : '';
@@ -80,9 +88,9 @@ const getCellContentsById = (id) => {
 };
 
 const setCellBackground = (hour) => {
-  if (hour < moment().hour()) { return "table-light" || "past"; }
-  else if (hour == moment().hour()) { return "table-danger" || "present"; }
-  else if (hour > moment().hour()) { return "table-success" || "future"; }
+  if (hour < moment().hour()) { return "table-light" || "table-past"; }
+  else if (hour == moment().hour()) { return "table-danger" || "table-present"; }
+  else if (hour > moment().hour()) { return "table-success" || "table-future"; }
 };
 
 const updateScheduleTable = () => {
