@@ -25,7 +25,8 @@ const handleLocalStorage = (action, storageName, data) => {
 //initialize local storage
 let scheduleStorage = handleLocalStorage("initialize", "schedule");
 //refresh our local scheduleStorage to be updated with the most current data.
-const refreshScheduleStorage = () => scheduleStorage = handleLocalStorage("get", "schedule");
+const refreshScheduleStorage = () => scheduleStorage = handleLocalStorage("get", "schedule") ?
+handleLocalStorage("get", "schedule") : [];
 
 console.info(scheduleStorage);
 // handleLocalStorage("clear", "schedule");
@@ -55,44 +56,52 @@ const timeSlots = [
 
 //function that saves the contents typed into the input cell to local storage using a matching ID
 const saveContents = event => {
-  for (i = 0; i < scheduleStorage.length; i++) {
-    if (event.target.dataset.time === scheduleStorage[i].cellId.split("-")[0]) {
-      //once we matched the id with the item in the storage array then we want to splice the item from the array with the index.
-      scheduleStorage.splice(event.target.dataset.index, 1);
-    }
-  }
-  
+  // event.preventDefault();
+  // console.log(event.target.dataset.index, scheduleStorage)
+  scheduleStorage
+    .filter(item => item.cellId.split("-")[0] === event.target.dataset.time &&
+      scheduleStorage.splice(event.target.dataset.index, 1)
+    );
   //cellContents is equal to the input targeted by the dynamic id, if there is one.
   const cellContents = document.getElementById(event.target.dataset.time+"-cell") &&
   document.getElementById(event.target.dataset.time+"-cell").value;
 
   // if there is a dataset time attribute
   if (event.target.dataset.time) {
+    //push the details to the schedule storage array
     scheduleStorage.push({
       cellId: event.target.dataset.time+"-cell",
       cellContents: cellContents
     });
+    //handle local storage setting the updated array to the storage instance
     handleLocalStorage("set", "schedule", scheduleStorage);
+    //refreshScheduleStorage so the rest of the app has access to the most current data.
     refreshScheduleStorage();
+    //update the schedule table in the DOM to reflect whats in storage.
     updateScheduleTable();
-    console.info(scheduleStorage);
   }
 };
 
+//we need to populate the cell contents by whats in storage.
 const getCellContentsById = id => {
+  //loop through each item in the schedule storage.
   for (i = 0; i < scheduleStorage.length; i++) {
+    //if there is a matching id with the id we passed to this function coming from an individual cell
     if (id === scheduleStorage[i].cellId) {
-      return scheduleStorage[i].cellContents ? scheduleStorage[i].cellContents : '';
+      //if there is contents for the cell then return it.
+      return scheduleStorage[i].cellContents && scheduleStorage[i].cellContents;
     }
   }
 };
 
+//this function dynamically sets the background color of the cell depending on what time of day it is.
 const setCellBackground = (hour) => {
   if (hour < moment().hour()) { return "table-light" || "table-past"; }
   else if (hour == moment().hour()) { return "table-danger" || "table-present"; }
   else if (hour > moment().hour()) { return "table-success" || "table-future"; }
 };
 
+//last function handles updating the content and HTML elements in the DOM whenever new data is added changed or deleted.
 const updateScheduleTable = () => {
   //table component.
   document.querySelector(".container").innerHTML = `
@@ -122,7 +131,7 @@ const updateScheduleTable = () => {
             data-time="${timeslot.time}"
             data-index="${index}"
             type="submit" 
-            class="btn text-light" 
+            class="btn text-light h-100 w-100" 
             onclick="saveContents(event)"
           ><i class="fa fa-lock" aria-hidden="true"></i></button>
         </td>
